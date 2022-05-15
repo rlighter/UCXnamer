@@ -10,23 +10,16 @@ bl_info = {
 
 import bpy
 
-def main(self, context):
+def renameUCX(self, context):
     S = bpy.context.active_object
     S0 = S.name
-    i = 0
-    # changed indexing from 0,1,2 to 00,01,02
-    zero = "0"
-    for obj in bpy.context.selected_objects:
-        if i > 9:
-            zero = ""
-        obj.name = (("UCX_")+S.name+("_")+zero+str(i))
+    for idx, obj in enumerate(bpy.context.selected_objects):
+        
+        obj.name = (("UCX_")+S.name+("_")+(str(idx).zfill(2)))
         if self.parentToActive:
             if obj != S:
-                # parent AND KEEP TRANSFORM
                 obj.parent= S
                 obj.matrix_parent_inverse = S.matrix_world.inverted()
-
-        i+=1
         S.name = str(S0)
 
 class MESH_OT_UCXnamer(bpy.types.Operator):
@@ -46,17 +39,13 @@ class MESH_OT_UCXnamer(bpy.types.Operator):
     def poll(cls, context):
         return context.active_object
     
-   
-    
-
-
     def execute(self, context):
         print(len(context.selected_objects))
          # Checking if its possible to perform operator using more user friendly error message
         if len(context.selected_objects) <= 1:
-            self.report({'ERROR'}, "Please select some objects to name")
+            self.report({'ERROR'}, "Please select some objects to rename")
             return {'CANCELLED'}
-        main(self, context)
+        renameUCX(self, context)
         return {'FINISHED'}
 
 class VIEW3D_PT_UCXpanel(bpy.types.Panel):
@@ -101,12 +90,7 @@ def unregister():
 
     bpy.types.VIEW3D_MT_object.remove(menu_func_UCX)
 
-
 if __name__ == "__main__":
     register()
-    
-    # test call
-    # isn't needed :)
-    # bpy.ops.ucxnamer.id()
 
 
